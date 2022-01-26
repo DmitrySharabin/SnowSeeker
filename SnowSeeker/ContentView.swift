@@ -9,8 +9,25 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        Text("Hello, world!")
-            .padding()
+//        NavigationView {
+//            Text("Hello, world!")
+//                .navigationTitle("Primary")
+//
+//            Text("Secondary")
+//        }
+        
+        NavigationView {
+            NavigationLink {
+                Text("New secondary")
+            } label: {
+                Text("Hello, world!")
+            }
+            .navigationTitle("Primary")
+            
+            Text("Secondary")
+            
+            Text("Tertiary")
+        }
     }
 }
 
