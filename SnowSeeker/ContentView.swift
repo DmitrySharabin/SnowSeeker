@@ -17,11 +17,18 @@ extension View {
     }
 }
 
+enum SortOrder {
+    case none, alphabetical, country
+}
+
 struct ContentView: View {
     let resorts: [Resort] = Bundle.main.decode("resorts.json")
     
     @StateObject var favorites = Favorites()
     @State private var searchText = ""
+    
+    @State private var sortOrder: SortOrder = .none
+    @State private var showingSortOrderDialog = false
     
     var body: some View {
         NavigationView {
@@ -61,6 +68,20 @@ struct ContentView: View {
             }
             .navigationTitle("Resorts")
             .searchable(text: $searchText, prompt: "Search for a resort")
+            .toolbar {
+                Button {
+                    showingSortOrderDialog = true
+                } label: {
+                    Label("Sort resorts", systemImage: "arrow.up.arrow.down")
+                }
+            }
+            .confirmationDialog("Choose sort order", isPresented: $showingSortOrderDialog, titleVisibility: .visible) {
+                Button("Default") { sortOrder = .none }
+                Button("Alphabetical") { sortOrder = .alphabetical }
+                Button("Country") { sortOrder = .country }
+                
+                Button("Cancel", role: .cancel) { }
+            }
             
             WelcomeView()
         }
@@ -68,11 +89,22 @@ struct ContentView: View {
         //.phoneOnlyStackNavigationView()
     }
     
+    var sortedResorts: [Resort] {
+        switch sortOrder {
+            case .none:
+                return resorts
+            case .alphabetical:
+                return resorts.sorted()
+            case .country:
+                return resorts.sorted { $0.country < $1.country }
+        }
+    }
+    
     var filteredResorts: [Resort] {
         if searchText.isEmpty {
-            return resorts
+            return sortedResorts
         } else {
-            return resorts.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
+            return sortedResorts.filter { $0.name.localizedCaseInsensitiveContains(searchText) }
         }
     }
 }
